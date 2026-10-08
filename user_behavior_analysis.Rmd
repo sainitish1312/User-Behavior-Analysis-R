@@ -1,0 +1,113 @@
+---
+title: "Untitled"
+author: "Kavya Kuruvanghat"
+date: "2026-01-05"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+
+behavior <- read.csv("user_behavior_sample.csv")
+head(behavior)
+
+engagement_summary <- behavior %>%
+summarise(
+avg_pages_viewed = mean(pages_viewed, na.rm = TRUE),
+avg_time_on_site = mean(time_on_site, na.rm = TRUE),
+avg_scroll_depth = mean(scroll_depth, na.rm = TRUE),
+conversion_rate = mean(conversion, na.rm = TRUE)
+)
+
+engagement_summary
+
+landing_page_analysis <- behavior %>%
+group_by(landing_page) %>%
+summarise(
+sessions = n(),
+avg_pages = mean(pages_viewed, na.rm = TRUE),
+avg_time = mean(time_on_site, na.rm = TRUE),
+conversion_rate = mean(conversion, na.rm = TRUE)
+)
+
+landing_page_analysis
+ggplot(landing_page_analysis, aes(x = landing_page, y = sessions)) +
+geom_bar(stat = "identity") +
+labs(x = "Landing Page", y = "Sessions")
+
+
+
+
+exit_analysis <- behavior %>%
+group_by(exit_page) %>%
+summarise(
+exits = n(),
+exit_rate = n() / nrow(behavior)
+)
+
+exit_analysis
+
+#Conversion Distribution (Pie Chart)
+conversion_data <- behavior %>%
+count(conversion)
+
+ggplot(conversion_data, aes(x = "", y = n, fill = as.factor(conversion))) +
+geom_bar(stat = "identity", width = 1) +
+coord_polar("y") +
+theme_void()
+#Time on Site Distribution (Histogram)
+ggplot(behavior, aes(x = time_on_site)) +
+geom_histogram(bins = 10) +
+labs(x = "Time on Site", y = "Frequency")
+
+
+
+#Pages Viewed vs Conversion (Box Plot)
+
+ggplot(behavior, aes(x = as.factor(conversion), y = pages_viewed)) +
+geom_boxplot() +
+labs(x = "Conversion Status", y = "Pages Viewed")
+
+#time on Site vs Pages Viewed (Scatter Plot)
+ggplot(behavior, aes(x = time_on_site, y = pages_viewed)) +
+geom_point() +
+labs(x = "Time on Site", y = "Pages Viewed")
+
+
+#Correlation Heat map
+
+correlation_matrix <- cor(
+behavior[, c("pages_viewed", "time_on_site", "scroll_depth", "conversion")],
+use = "complete.obs"
+)
+
+corrplot(correlation_matrix, method = "color", type = "upper")
+
+
+#
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
